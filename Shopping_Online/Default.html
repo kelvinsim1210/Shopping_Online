@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- <meta charset="UTF-8"> -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    
+    <!-- vue 庫調用 -->
+    <script type="text/javascript" src="https://unpkg.com/vue"></script>
+    <!-- css 調用 -->
+    <link rel="stylesheet" href="./css/Default.css">
+    <!-- js 調用 -->
+    <!-- <script src="./js/Default.js"></script> -->
+</head>
+<body>
+    <div id="Main">
+        <div class="Main_Box">
+            <div class="Header">
+                <div class="Header_Logo">
+                    <a href="./Home.html">
+                        <img src="../public/image/Logo1.png" alt="">
+                    </a>
+                </div>
+                <div class="Header_List">
+                    <ul>
+                        <li v-for="(value, index) in Header_List">
+                            <a :href="value.Target">{{ value.Name }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="Content">
+                <hr>
+            </div>
+            <div class="Footer"></div>
+        </div>
+    </div>
+
+    
+    <!-- vue -->
+    <script>
+        const todoApp = Vue.createApp({
+            data() {
+                return {
+                    Header_List: [
+                        {
+                            Name: "客戶註冊",
+                            Target: "./Register.html?User=Customer"
+                        },
+                        {
+                            Name: "商家註冊",
+                            Target: "./Register.html?User=Merchant"
+                        }
+                    ]
+                };
+            },
+            methods: {
+                SeeData: function() {
+                    console.log("ok");
+                }
+            },
+            watch: {},
+            // created() {
+            //     console.log("created");
+            // }
+        }).mount("#Main");;
+    </script>
+</body>
+</html>
