@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- <meta charset="UTF-8"> -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    
+    <!-- vue 庫調用 -->
+    <script type="text/javascript" src="https://unpkg.com/vue"></script>
+    <!-- css 調用 -->
+    <link rel="stylesheet" href="./css/Default.css?a=1">
+    <link rel="stylesheet" href="./css/Home.css">
+    <!-- js 調用 -->
+    <!-- <script src="./js/Default.js"></script> -->
+</head>
+<body>
+    <div id="Main">
+        <div class="Header">
+            <div class="Header_Logo">
+                <a href="./Home.html">
+                    <img src="../public/image/Logo1.png" alt="">
+                </a>
+            </div>
+            <div class="Header_List">
+                <ul>
+                    <li v-if="U_Id">
+                        {{ User_Information.Name }} 歡迎回來
+                        <button @click="LogOut()">登出</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="Content">
+            <hr/>
+            <div v-show="Target_Select.Add_Commodity">
+                <p>新增商品</p>
+                <div>
+                    名稱: <input type="text"  v-model="Commodity_Data.Name"/> <br/>
+                    
+                    詳情: <input type="text" v-model="Commodity_Data.Introduction"/> <br/>
+
+                    價格: <input type="text" v-model="Commodity_Data.Price"/> <br/>
+
+                    庫存: <input type="text" v-model="Commodity_Data.Num"/> <br/>
+    
+                    <button @click="Add_Commodity()">save</button>
+                </div>
+            </div>
+        </div>
+        <div class="Footer">
+            <div class="Footer_Box">
+                <ul v-if="U_Id.substr(0,1)=='M'">
+                    <li>
+                        <a :style="Target_Select.Add_Commodity ? Targrt_Style:''" href="./Merchant.html?Target=Add_Commodity">新增商品</a>
+                    </li>
+                    <li>
+                        <a :style="Target_Select.My_Commodity ? Targrt_Style:''" href="./Merchant.html?Target=My_Commodity">我的商品</a>
+                    </li>
+                </ul>
+
+                <!-- <ul v-if="U_Id.substr(0,1)=='C'">
+                    <li>
+                        <a :style="Target_Select.Add_Commodity ? Targrt_Style:''" href="./Merchant.html?Target=Add_Commodity">新增商品</a>
+                    </li>
+                </ul> -->
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- vue -->
+    <script>
+        const todoApp = Vue.createApp({
+            data() {
+                return {
+                    U_Id: "None",
+                    Target_Select: {
+                        "Add_Commodity": false,
+                        "My_Commodity": false
+                    },
+                    Targrt_Style: {
+                        color: "#BDA075"
+                    },
+                    User_Information: {},
+                    Commodity_Data: {
+                        Name: "",
+                        Introduction: "",
+                        Price: "",
+                        Num: "",
+                        M_Id: ""
+                    }
+                };
+            },
+            methods: {
+                User_Login: function() {
+                    // is Login
+                    const that = this;
+                    let url = "../control/Login.php?User=Is_Login";
+                    fetch(url, {
+                        method: "GET"
+                    })
+                    .then(function(res) {
+                        return res.text();
+                    })
+                    .then(function(data) {
+                        if(data) {
+                            console.log(data);
+                            let U_In = JSON.parse(data);
+                            that.User_Information = U_In;
+                            that.U_Id = U_In.Id;
+                        }
+                        else {
+                            console.log("No_User");
+                            alert("請登錄");
+                            window.location.href = "./Home.html";
+                        }
+                    })
+                },
+                LogOut: function() {
+                    fetch("../control/Login.php?User=LogOut&U_Id="+this.U_Id, {
+                        methods: "POST"
+                    })
+                    .then((res) => {
+                        return res.text();
+                    })
+                    .then((data) => {
+                        console.log(data);
+                        this.U_Id = "None";
+                    })
+                },
+                Check: function() {
+                    console.log(this.Target_Select.Add_Commodity);
+                },
+                Set_Target_UI: function() {
+                    let para = window.location.search.substr(1).split("&");
+                    console.log(para);
+                    for(var Data=0; para.length; Data++) {
+                        if(para[Data]) {
+                            console.log("yes");
+                            var data = para[Data].split("=");
+                            console.log(data);
+                            if(data[0] == "Target") {
+                                if(data[1] == "Add_Commodity") {
+                                    this.Target_Select.Add_Commodity = true;
+                                }
+                                else if(data[1] == "My_Commodity") {
+                                    this.Target_Select.My_Commodity = true;
+                                }
+                            }
+                        }
+                        else {
+                            return;
+                        }
+                    }
+                },
+                Add_Commodity: function() {
+                    this.Commodity_Data.M_Id = this.U_Id;
+                    // console.log(this.Commodity_Data.M_Id);
+                    let Data = new FormData();
+                    Data.append("Form", JSON.stringify(this.Commodity_Data));
+
+                    fetch("../control/Merchant.php?Target=Add_Commodity", {
+                        method: "POST",
+                        body: Data
+                    })
+                    .then((res) => {return res.text();})
+                    .then((data) => {
+                        console.log(data);
+                        if(data == "complete") {
+                            alert("新增商品成功");
+                        }
+                        else {
+                            alert("失敗");
+                        }
+                    })
+                }
+            },
+            watch: {},
+            created() {
+                this.User_Login();
+                this.Set_Target_UI();
+            }
+        }).mount("#Main");
+    </script>
+</body>
+</html>
